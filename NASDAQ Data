@@ -1,0 +1,40 @@
+from ibapi.client import EClient
+from ibapi.wrapper import EWrapper
+from ibapi.ticktype import TickTypeEnum
+from ibapi.contract import Contract
+import datetime
+
+class TestApp(EWrapper, EClient):
+     def __init__(self):
+          EClient.__init__(self,self)
+
+     def error(self, reqId, errorCode, errorString):
+          print("Error: ", reqId, " ", errorCode, " ", errorString)
+
+     def tickPrice(self, reqId, tickType, price, attrib):
+         now = datetime.datetime.now()
+         current_time = now.strftime("%H:%M:%S")
+         print("TickPrice. TickerId:", reqId, "tickType:", TickTypeEnum.to_str(tickType), "Price:", price, end=' ''\n')
+         if (reqId == 3 and tickType == 14): nasdaq_open = price
+         if (reqId == 3 and tickType == 14): print("open", nasdaq_open)
+
+def main1():
+     app = TestApp()
+               
+     
+     app.connect('127.0.0.1', 7496, 0)
+
+     contract_NASDAQ = Contract ()
+     contract_NASDAQ.symbol = "COMP"
+     contract_NASDAQ.secType = "IND"
+     contract_NASDAQ.exchange = 'NASDAQ'
+     contract_NASDAQ.currency = 'USD'
+     contract_NASDAQ.primaryExchange = 'NASDAQ'
+
+     app.reqMktData(3, contract_NASDAQ, "", False, False, [])
+
+     app.run()
+
+if __name__ == "__main__":
+     main1()
+     print("END")
